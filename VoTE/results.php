@@ -1,7 +1,7 @@
 <?
 require("../../bin/keystore.php");
 mysql_connect(keystore("mysql", "db"), keystore("mysql", "user"), keystore("mysql", "pass"));
-mysql_select_db("ollieter_labs");
+mysql_select_db("terrance_labs");
 switch ($_POST["action"])
 {
 	case "get_question":

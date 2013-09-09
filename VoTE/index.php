@@ -1,7 +1,7 @@
 <?
 require("../../bin/keystore.php");
 mysql_connect(keystore("mysql", "db"), keystore("mysql", "user"), keystore("mysql", "pass"));
-mysql_select_db("ollieter_labs");
+mysql_select_db("terrance_labs");
 if (isset($_GET["error"]))
 {
 	template_header("Error: VoTE");
