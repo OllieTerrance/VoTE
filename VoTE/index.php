@@ -2,7 +2,8 @@
 require_once getenv("PHPLIB") . "keystore.php";
 mysql_connect(keystore("mysql", "db"), keystore("mysql", "user"), keystore("mysql", "pass"));
 mysql_select_db("terrance_labs");
-if (isset($_GET["error"]))
+session_start();
+if (array_key_exists("error", $_GET) && isset($_GET["error"]))
 {
 	template_header("Error: VoTE");
 	switch ($_GET["error"])
@@ -22,88 +23,90 @@ if (isset($_GET["error"]))
 	return;
 }
 // check post data (used by AJAX functions to dynamically get data)
-switch ($_POST["action"])
-{
-	case "get_question":
-		$data = mysql_query("SELECT * FROM `vote__questions`;");
-		$last = (int)$_POST["last"];
-		$i = $last;
-		while ($i < mysql_num_rows($data))
-		{
-			$ok = true;
-			$id = mysql_result($data, $i, "id");
-			if ($_SESSION["login"]["id"] > 0)
-			{
-				$data2 = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id." AND `user` = ".$_SESSION["login"]["id"].";");
-				if (mysql_num_rows($data2) > 0)
-				{
-					$ok = false;
-				}
-			}
-			$data2 = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id." AND `ip` = \"".$_SERVER["REMOTE_ADDR"]."\";");
-			if (mysql_num_rows($data2) > 0)
-			{
-				$ok = false;
-			}
-			if ($ok)
-			{
-				$question = mysql_result($data, $i, "question");
-				$answers = mysql_result($data, $i, "answers");
-				print($id."\n".$question."\n".$answers);
-				return;
-			}
-			else
-			{
-				$i++;
-			}
-		}
-		$i = 0;
-		while ($i < $last)
-		{
-			$ok = true;
-			$id = mysql_result($data, $i, "id");
-			$data = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id." AND `ip` = \"".$_SERVER["REMOTE_ADDR"]."\";");
-			if (mysql_num_rows($data) > 0)
-			{
-				$ok = false;
-			}
-			if ($ok)
-			{
-				$question = mysql_result($data, $i, "question");
-				$answers = mysql_result($data, $i, "answers");
-				print($id."\n".$question."\n".$answers);
-				return;
-			}
-			else
-			{
-				$i++;
-			}
-		}
-		return;
-	case "make_vote":
-		$data = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$_POST["id"]." AND `ip` = \"".$_SERVER["REMOTE_ADDR"]."\";");
-		if (mysql_num_rows($data) > 0)
-		{
-			print("You've already voted on this question...  so you shouldn't have really been asked it.  What did you do?  Have you got this page open more than once?  In which case, please don't.  :/");
-			return;
-		}
-		mysql_query("INSERT INTO `vote__votes` VALUES(".$_POST["id"].", 0, \"".$_SERVER["REMOTE_ADDR"]."\", \"".$_POST["answer"]."\");");
-		return;
-	case "get_result":
-		$data = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$_POST["id"].";");
-		$i = 0;
-		$count = array("a" => 0, "b" => 0, "c" => 0);
-		while ($i < mysql_num_rows($data))
-		{
-			$count[mysql_result($data, $i, "answer")] += 1;
-			$i++;
-		}
-		print implode("|", $count);
-		return;
-	case "suggest":
-		mysql_query("INSERT INTO `vote__suggestions` VALUES(\"".$_SERVER["REMOTE_ADDR"]."\", \"".$_POST["question"]."\", \"".$_POST["answers"]."\");");
-		print("Your suggestion, \"".$_POST["question"]."\", has been noted!  Keep voting - you might see your question soon...");
-		return;
+if (array_key_exists("action", $_POST)) {
+    switch ($_POST["action"])
+    {
+        case "get_question":
+            $data = mysql_query("SELECT * FROM `vote__questions`;");
+            $last = (int)$_POST["last"];
+            $i = $last;
+            while ($i < mysql_num_rows($data))
+            {
+                $ok = true;
+                $id = mysql_result($data, $i, "id");
+                if (array_key_exists("login", $_SESSION) && $_SESSION["login"]["id"] > 0)
+                {
+                    $data2 = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id." AND `user` = ".$_SESSION["login"]["id"].";");
+                    if (mysql_num_rows($data2) > 0)
+                    {
+                        $ok = false;
+                    }
+                }
+                $data2 = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id." AND `ip` = \"".$_SERVER["REMOTE_ADDR"]."\";");
+                if (mysql_num_rows($data2) > 0)
+                {
+                    $ok = false;
+                }
+                if ($ok)
+                {
+                    $question = mysql_result($data, $i, "question");
+                    $answers = mysql_result($data, $i, "answers");
+                    print($id."\n".$question."\n".$answers);
+                    return;
+                }
+                else
+                {
+                    $i++;
+                }
+            }
+            $i = 0;
+            while ($i < $last)
+            {
+                $ok = true;
+                $id = mysql_result($data, $i, "id");
+                $data = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id." AND `ip` = \"".$_SERVER["REMOTE_ADDR"]."\";");
+                if (mysql_num_rows($data) > 0)
+                {
+                    $ok = false;
+                }
+                if ($ok)
+                {
+                    $question = mysql_result($data, $i, "question");
+                    $answers = mysql_result($data, $i, "answers");
+                    print($id."\n".$question."\n".$answers);
+                    return;
+                }
+                else
+                {
+                    $i++;
+                }
+            }
+            return;
+        case "make_vote":
+            $data = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$_POST["id"]." AND `ip` = \"".$_SERVER["REMOTE_ADDR"]."\";");
+            if (mysql_num_rows($data) > 0)
+            {
+                print("You've already voted on this question...  so you shouldn't have really been asked it.  What did you do?  Have you got this page open more than once?  In which case, please don't.  :/");
+                return;
+            }
+            mysql_query("INSERT INTO `vote__votes` VALUES(".$_POST["id"].", 0, \"".$_SERVER["REMOTE_ADDR"]."\", \"".$_POST["answer"]."\");");
+            return;
+        case "get_result":
+            $data = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$_POST["id"].";");
+            $i = 0;
+            $count = array("a" => 0, "b" => 0, "c" => 0);
+            while ($i < mysql_num_rows($data))
+            {
+                $count[mysql_result($data, $i, "answer")] += 1;
+                $i++;
+            }
+            print implode("|", $count);
+            return;
+        case "suggest":
+            mysql_query("INSERT INTO `vote__suggestions` VALUES(\"".$_SERVER["REMOTE_ADDR"]."\", \"".$_POST["question"]."\", \"".$_POST["answers"]."\");");
+            print("Your suggestion, \"".$_POST["question"]."\", has been noted!  Keep voting - you might see your question soon...");
+            return;
+    }
 }
 ?><html>
 	<head>
