@@ -1,7 +1,6 @@
 <?
-require_once getenv("PHPLIB") . "keystore.php";
-mysql_connect(keystore("mysql", "db"), keystore("mysql", "user"), keystore("mysql", "pass"));
-mysql_select_db("terrance_labs");
+$dbFile = "vote.db";
+$db = require_once getenv("DATA") . "medoo.php";
 ?><html>
     <head>
         <title>VoTE: Vote-oriented Tally Engine</title>
@@ -102,26 +101,16 @@ mysql_select_db("terrance_labs");
         </div>
         <div id="content" align="center">
 <?
-$data = mysql_query("SELECT * FROM `vote__questions`;");
-$i = 0;
-while ($i < mysql_num_rows($data))
-{
-    $id = mysql_result($data, $i, "id");
-    $question = mysql_result($data, $i, "question");
-    $answers = explode("|", mysql_result($data, $i, "answers"));
-    $data2 = mysql_query("SELECT * FROM `vote__votes` WHERE `id` = ".$id.";");
+foreach ($db->select("questions", "*") as $row) {
+    $answers = explode("|", $row["answers"]);
     $count = array("a" => 0, "b" => 0, "c" => 0);
-    $i2 = 0;
-    while ($i2 < mysql_num_rows($data2)) {
-        $count[mysql_result($data2, $i2, "answer")] += 1;
-        $i2++;
-    }
+    foreach ($db->select("votes", "answer", array("id" => $row["id"])) as $answer) $count[$answer]++;
     $total = $count["a"] + $count["b"] + $count["c"];
     $a = floor(($count["a"] / $total) * 100);
     $b = floor(($count["b"] / $total) * 100);
     $c = floor(($count["c"] / $total) * 100);
 ?>
-            <div id="question"><? print($question); ?></div>
+            <div id="question"><? print($row["question"]); ?></div>
             <div id="results">
                 <div id="result1" class="result">
 <?
@@ -164,7 +153,6 @@ while ($i < mysql_num_rows($data))
                 </div>
             </div>
 <?
-    $i++;
 }
 ?>
         </div>
