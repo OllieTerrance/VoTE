@@ -386,6 +386,6 @@ if (array_key_exists("action", $_POST)) {
             </div>
             <div id="next" onclick="get_question();">Next question, please...</div>
         </div>
-        <div id="footer">Back to <a href="../">Terrance Laboratories</a>.</div>
+        <div id="footer">A democratic decision engine created by <a href="//terrance.allofti.me">Ollie Terrance</a>.</div>
     </body>
 </html>

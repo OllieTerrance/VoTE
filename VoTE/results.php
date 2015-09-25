@@ -156,6 +156,6 @@ foreach ($db->select("questions", "*") as $row) {
 }
 ?>
         </div>
-        <div id="footer">Back to <a href="../">Terrance Laboratories</a>.</div>
+        <div id="footer">A democratic decision engine created by <a href="//terrance.allofti.me">Ollie Terrance</a>.</div>
     </body>
 </html>
