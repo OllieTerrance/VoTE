@@ -1,6 +1,6 @@
 <?
 $dbFile = "vote.db";
-$db = require_once getenv("DATA") . "medoo.php";
+$db = require_once getenv("PHPLIB") . "db.php";
 session_start();
 if (array_key_exists("error", $_GET) && isset($_GET["error"])) {
     template_header("Error: VoTE");

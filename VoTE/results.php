@@ -1,6 +1,6 @@
 <?
 $dbFile = "vote.db";
-$db = require_once getenv("DATA") . "medoo.php";
+$db = require_once getenv("PHPLIB") . "db.php";
 ?><html>
     <head>
         <title>VoTE: Vote-oriented Tally Engine</title>
