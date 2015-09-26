@@ -3,21 +3,14 @@ $dbFile = "vote.db";
 $db = require_once getenv("PHPLIB") . "db.php";
 session_start();
 if (array_key_exists("error", $_GET) && isset($_GET["error"])) {
-    template_header("Error: VoTE");
     switch ($_GET["error"]) {
         case "ajax":
-            template_post("AJAX error...", "Your browser doesn't appear to support XMLHTTP requests.  In order to use VoTE, you need a better browser (such as Google Chrome, Mozilla Firefox or Apple Safari).  When you've got one, go <a href=\"./\">here</a> to try it again.");
-            break;
+            die("Your browser doesn't appear to support XMLHTTP requests.  In order to use VoTE, you need a better browser (such as Google Chrome, Mozilla Firefox or Apple Safari).  When you've got one, go <a href=\"./\">here</a> to try it again.");
         case "js":
-            template_post("JavaScript error...", "You have JavaScript disabled in your browser.  In order to use VoTE, you need to enable it.  You can usually do this by going to your browser's options screen.  When you've done so, click <a href=\"./\">here</a> to try it again.");
-            break;
+            die("You have JavaScript disabled in your browser.  In order to use VoTE, you need to enable it.  You can usually do this by going to your browser's options screen.  When you've done so, click <a href=\"./\">here</a> to try it again.");
         default:
-            template_post("Unknown error...", "Some random error has occured...  what have you done?  Are you trying to access this error page directly?  Go back <a href=\"./\">here</a> now.");
-            break;
+            die("Some random error has occured...  what have you done?  Are you trying to access this error page directly?  Go back <a href=\"./\">here</a> now.");
     }
-    template_about("VoTE...  what?", "The Vote-orientated Tally Engine (VoTE) is a system that asks a variety of random and, quite often, pointless questions.  But you'll love it.  No, really.");
-    template_footer();
-    return;
 }
 // check post data (used by AJAX functions to dynamically get data)
 if (array_key_exists("action", $_POST)) {
@@ -40,12 +33,10 @@ if (array_key_exists("action", $_POST)) {
         case "get_result":
             $count = array("a" => 0, "b" => 0, "c" => 0);
             foreach ($db->select("votes", "answer", array("id" => $_POST["id"])) as $answer) $count[$answer]++;
-            print(implode("|", $count));
-            return;
+            die(implode("|", $count));
         case "suggest":
             $db->insert("suggestions", array("ip" => $_SERVER["REMOTE_ADDR"], "question" => $_POST["question"], "answers" => $_POST["answers"]));
-            print("Your suggestion, \"" . $_POST["question"] . "\", has been noted!  Keep voting - you might see your question soon...");
-            return;
+            die("Your suggestion, \"" . $_POST["question"] . "\", has been noted!  Keep voting - you might see your question soon...");
     }
 }
 ?><html>
@@ -180,15 +171,13 @@ if (array_key_exists("action", $_POST)) {
         var complete = false;
         try {
             xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-        }
-        catch (error) {
+        } catch (error) {
             try {
                 xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
             } catch (error) {
                 try {
                     xmlhttp = new XMLHttpRequest();
-                }
-                catch (error) {
+                } catch (error) {
                     window.location = "?error=ajax";
                 }
             }
